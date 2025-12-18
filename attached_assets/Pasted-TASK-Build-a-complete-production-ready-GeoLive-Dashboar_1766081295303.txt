@@ -1,0 +1,410 @@
+TASK:
+Build a complete, production-ready GeoLive Dashboard as a standalone web application using Python (Flask) for backend and TailwindCSS + HTML for frontend.
+The dashboard must look visually similar to the reference UI shown in my screenshot: dark, premium, glossy, card-based, gradient backgrounds, rounded tiles, glowing buttons, modern icons, and a polished server-selection view.
+
+The dashboard must include an advanced Discord OAuth2 login, a full server configuration system, a user-location system (via browser GPS), data widgets, customizable bot settings, a guild-based config store, and a modular, scalable file structure.
+
+The final result must be a full project scaffolded automatically by Replit.
+
+Below are the requirements in detail (long text intentionally — this is a full system specification).
+
+1. PROJECT STRUCTURE
+
+Replit must generate this file/folder layout:
+
+geolive-dashboard/
+│
+├── dashboard/
+│   ├── app.py
+│   ├── routes/
+│   │   ├── auth.py
+│   │   ├── guild.py
+│   │   ├── api.py
+│   │   ├── location.py
+│   ├── utils/
+│   │   ├── oauth.py
+│   │   ├── storage.py
+│   │   ├── weather.py
+│   │   ├── earthquakes.py
+│   │   ├── iss.py
+│   │   ├── aurora.py
+│   ├── templates/
+│   │   ├── layout.html
+│   │   ├── login.html
+│   │   ├── dashboard.html
+│   │   ├── guilds.html
+│   │   ├── guild_settings.html
+│   │   ├── components/
+│   │       ├── sidebar.html
+│   │       ├── navbar.html
+│   │       ├── guild_card.html
+│   ├── static/
+│   │   ├── css/
+│   │   ├── js/
+│   │   │   ├── location.js
+│   │   │   ├── guild_settings.js
+│   │   ├── images/
+│   ├── assets/
+│       ├── geolive_logo.png
+│
+├── requirements.txt
+├── README.md
+
+
+Use Flask for backend, TailwindCSS for styling, and Alpine.js for interactivity.
+
+2. FUNCTIONAL OVERVIEW
+
+The GeoLive Dashboard must include:
+
+✓ Full Discord OAuth2 Authentication
+
+Users must log in via Discord.
+
+OAuth scopes:
+
+identify
+guilds
+
+
+Fetch:
+
+user profile
+
+user guilds
+
+Only show guilds where the user has MANAGE_GUILD permission.
+
+✓ Server Selection Page (like the screenshot)
+
+Modern grid layout.
+
+Each guild as a rounded tile.
+
+Glow hover effects.
+
+Card gradient background.
+
+Guild icon + name + “Setup” button.
+
+Perfect spacing + responsive.
+
+✓ Guild Settings Page
+
+Includes:
+
+Feed Controls
+
+Enable/disable Earthquake feed
+
+Enable/disable Weather feed
+
+Enable/disable ISS feed
+
+Enable/disable Aurora feed
+
+Interval selector (5–60 minutes)
+
+Auto-detected preferred settings based on user location
+
+Embed Style Controls
+
+Primary color picker (#00AEEF default)
+
+Icon URL input
+
+Banner URL input
+
+Preview embed card (updates live)
+
+API Key Settings
+
+Hidden/locked:
+
+WeatherAPI Key
+
+NASA Key
+
+Live Geo Widgets
+
+Based on user location (GPS):
+
+Local temperature widget
+
+Local 24h rainfall / humidity widget
+
+Nearby earthquakes (<500km)
+
+ISS next overhead time
+
+Aurora probability index (KP-index)
+
+The UI must update dynamically using JavaScript fetch requests to:
+
+/api/local/weather
+/api/local/earthquakes
+/api/local/iss
+/api/local/aurora
+
+✓ Modern Sidebar + Navbar
+
+Left sidebar:
+
+Dashboard
+
+Servers
+
+Bot Settings
+
+Support
+
+Premium
+All with icons.
+
+Top-right navbar:
+
+User avatar
+
+Username
+
+Logout button
+
+3. LOCATION SYSTEM
+
+The dashboard must detect the user's location via:
+
+Browser GPS (navigator.geolocation)
+
+Add script in layout.html:
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(pos => {
+    fetch("/location/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude
+      })
+    });
+  });
+}
+
+
+Backend route /location/update saves:
+
+session["user_location"] = {"lat": lat, "lon": lon}
+
+
+This location feeds:
+
+Weather widget
+
+Earthquake widget
+
+ISS overhead calculation
+
+Automatic recommended feed settings
+
+4. STORAGE SYSTEM
+
+Each guild has a JSON config:
+
+Path:
+
+data/config/<guild_id>.json
+
+
+Fields:
+
+{
+  "earthquake_feed_enabled": true,
+  "weather_feed_enabled": true,
+  "iss_feed_enabled": false,
+  "aurora_feed_enabled": false,
+  "interval_minutes": 15,
+  "primary_color": "#00AEEF",
+  "icon_url": "",
+  "banner_url": "",
+  "weather_api_key": "",
+  "nasa_api_key": ""
+}
+
+
+Flask must include:
+
+def get_guild_config(guild_id)
+def save_guild_config(guild_id, data)
+
+5. WIDGET BACKEND
+
+Generate simple JSON API endpoints:
+
+/api/local/weather
+/api/local/earthquakes
+/api/local/iss
+/api/local/aurora
+
+
+Use:
+
+WeatherAPI for weather
+
+(temperature, wind, humidity, condition)
+
+USGS API for earthquakes
+
+(fetch quakes around user’s coordinates)
+
+NASA / OpenNotify for ISS
+
+(next pass calculation)
+
+NOAA for aurora KP-index
+
+(aurora forecast)
+
+6. UI DESIGN REQUIREMENTS
+
+The UI MUST visually resemble the screenshot:
+
+Dark Mode + Glassmorphism
+
+backdrop-blur-lg
+
+bg-white/5
+
+rounded-2xl
+
+shadow-xl
+
+Soft neon (purple/blue/orange) gradients.
+
+Guild Cards
+
+200x200 px tiles
+
+Rounded, blurred background
+
+Gradient overlay
+
+Guild icon centered in circle
+
+Bottom area: name + Setup button
+
+On hover: glow + scale transform
+
+Guild Settings Page
+
+Two-column layout:
+
+Left: settings forms
+
+Right: live widgets
+
+Cards are glass, minimalistic, soft borders.
+
+Thin Font Titles
+
+Use Unicode thin style:
+
+𝙂𝙚𝙤𝙇𝙞𝙫𝙚 𝘿𝙖𝙨𝙝𝙗𝙤𝙖𝙧𝙙
+𝙂𝙚𝙤𝙇𝙞𝙫𝙚 𝙎𝙚𝙧𝙫𝙚𝙧𝙨
+𝙂𝙚𝙤𝙇𝙞𝙫𝙚 𝙎𝙚𝙩𝙩𝙞𝙣𝙜𝙨
+
+Buttons
+
+Rounded-full
+
+Glow shadow
+
+Tailwind classes:
+
+bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 text-white px-5 py-2 rounded-full shadow-lg transition
+
+7. LOGIN PAGE
+
+Must include:
+
+Large GeoLive logo (assets/geolive_logo.png)
+
+Purple glow background
+
+“Login with Discord” button
+
+Minimalistic card in center
+
+On success → redirect /dashboard
+
+8. DASHBOARD PAGE
+
+Shows:
+
+“Welcome, <username>”
+
+Large grid of server cards
+
+Search bar for filtering guilds
+
+Premium badge for premium users (optional)
+
+9. GUILD SETTINGS LOGIC
+
+When user saves:
+
+POST → /guild/<guild_id>/save
+
+The backend must:
+
+Validate ownership
+
+Save JSON settings
+
+Return:
+
+{"success": true}
+
+
+The frontend should show:
+
+Toast Notification “Settings Saved Successfully”
+
+10. REQUIREMENTS.TXT
+
+Replit must generate:
+
+flask
+requests
+python-dotenv
+gunicorn
+geopy
+pytz
+
+11. README.md MUST INCLUDE
+
+How to run dashboard
+
+How to set environment variables
+
+How Discord OAuth works
+
+How guild configs are stored
+
+How to start Tailwind build process
+
+12. FINAL GOAL
+
+The final result must be:
+
+✔ A full-featured, production-ready dashboard
+✔ Beautiful modern UI
+✔ Discord login
+✔ Server selection system
+✔ Guild settings + saving
+✔ Location-based widgets
+✔ Tailwind styling
+✔ Clean backend architecture
+
+This is a complete professional dashboard used to manage the GeoLive Discord Bot.
+
+Build all files, folders, templates, backend routes, JS scripts, Tailwind config, and README automatically.
